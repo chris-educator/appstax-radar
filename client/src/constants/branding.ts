@@ -31,7 +31,8 @@ export function appstaxCopyrightLine(year = new Date().getFullYear()) {
   return `© ${year} AppStax · Limited only by Imagination · Brisbane · Australia`
 }
 
+/** Canonical one-liner — appstax-website/docs/privacy-marketing-blurbs.md § AppStax Radar */
 export const APP_PRIVACY_BLURB =
-  'Summaries are original AppStax text with links to sources. No accounts — admin review queue is key-protected.'
+  'Summaries are original AppStax text with links to sources. No public accounts — review queue is key-protected. Google Gemini.'
 
 export const ADMIN_KEY_STORAGE = 'appstax-radar-admin-key'

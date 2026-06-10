@@ -1,11 +1,20 @@
-import type { ReactNode } from 'react'
-import { APPSTAX_MAILTO_LINK_PROPS } from '../constants/branding'
+import type { AnchorHTMLAttributes, ReactNode } from 'react'
 
-type Props = { href: string; className?: string; children: ReactNode }
+type AppstaxMailtoLinkProps = Omit<AnchorHTMLAttributes<HTMLAnchorElement>, 'href' | 'download'> & {
+  href: string
+  children: ReactNode
+}
 
-export function AppstaxMailtoLink({ href, className, children }: Props) {
+/** mailto: for apps@appstax.ai — opens mail handler and keeps this app open (new tab / window). */
+export function AppstaxMailtoLink({
+  href,
+  children,
+  target = '_blank',
+  rel = 'noopener noreferrer',
+  ...rest
+}: AppstaxMailtoLinkProps) {
   return (
-    <a href={href} className={className} {...APPSTAX_MAILTO_LINK_PROPS}>
+    <a href={href} target={target} rel={rel} {...rest}>
       {children}
     </a>
   )
