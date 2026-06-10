@@ -1,0 +1,20 @@
+---
+description: AppStax studio context — AppStax Radar
+alwaysApply: true
+---
+
+# AppStax — this repo
+
+**App:** AppStax Radar (AI/dev/gaming news — Scout + review queue)
+
+**Stack:** FastAPI `server/`, Vite `client/`, `src/` Scout logic, SQLite, Gemini
+
+**Product rules:** Original summaries + source links only. No full article republish. `RADAR_ADMIN_SECRET` for review actions.
+
+**Studio:** Skill `appstax-studio`. **Bottom line:** `../appstax-website/docs/studio-principles.md`
+
+**Entry:** Read `AGENTS.md` first.
+
+**Commands:** `/explore` · `/ship-check`
+
+**Deploy:** `pre-deploy-reviewer` before Railway. See `docs/DEPLOY.md`.

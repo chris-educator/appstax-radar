@@ -1,0 +1,10 @@
+{
+  "name": "appstax-radar",
+  "private": true,
+  "version": "0.1.0",
+  "scripts": {
+    "dev:api": "uvicorn server.main:app --reload --port 8005",
+    "dev:client": "npm run dev --prefix client",
+    "build": "npm run build --prefix client"
+  }
+}
