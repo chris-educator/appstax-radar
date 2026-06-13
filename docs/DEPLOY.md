@@ -6,7 +6,7 @@
 2. New Railway service → deploy from repo (Dockerfile).
 3. **Variables:**
    - `GOOGLE_API_KEY`
-   - `GEMINI_MODEL` (optional, default `gemini-2.0-flash`)
+   - `GEMINI_MODEL` (optional, default `gemini-3.5-flash`)
    - `RADAR_ADMIN_SECRET` (long random string)
    - `RADAR_CRON_SECRET` (optional; defaults to admin secret)
    - `RADAR_DATA_PATH=/app/data/radar.db`
