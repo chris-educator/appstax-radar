@@ -1,21 +1,27 @@
 import type { ReactNode } from 'react'
-import { APPSTAX_HOME_URL } from '../constants/branding'
-import { Logo } from './Logo'
+import { EDSTACK_TOOLS_URL } from '../constants/branding'
+import { EdStackLogo } from './EdStackLogo'
 
-type SiteTopBarProps = { children: ReactNode }
+type SiteTopBarProps = {
+  children: ReactNode
+  innerClassName?: string
+}
 
-export function SiteTopBar({ children }: SiteTopBarProps) {
+export function SiteTopBar({
+  children,
+  innerClassName = 'site-top-bar__inner mx-auto w-full max-w-6xl px-4 sm:px-6 md:px-8',
+}: SiteTopBarProps) {
   return (
     <div className="site-top-bar shrink-0">
-      <div className="site-top-bar__inner mx-auto w-full max-w-6xl px-4 sm:px-6 md:px-8">
+      <div className={innerClassName}>
         <a
-          href={APPSTAX_HOME_URL}
+          href={EDSTACK_TOOLS_URL}
           target="_blank"
           rel="noopener noreferrer"
           className="site-top-bar__logo inline-flex w-fit shrink-0"
-          aria-label="AppStax home"
+          aria-label="EdStack tools"
         >
-          <Logo tone="dark" />
+          <EdStackLogo tone="dark" />
         </a>
         <div className="site-top-bar__actions">{children}</div>
       </div>

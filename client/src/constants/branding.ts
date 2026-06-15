@@ -1,5 +1,8 @@
 export const EDSTACK_PROJECTS_URL = 'https://edstack.appstax.ai'
 
+/** EdStack landing — tools / apps grid (`#tools`). Top-bar logo link. */
+export const EDSTACK_TOOLS_URL = 'https://edstack.appstax.ai/#tools'
+
 export const APP_TITLE = 'AppStax Radar'
 export const APP_TITLE_MUTED = 'AppStax '
 export const APP_TITLE_ACCENT = 'Radar'
