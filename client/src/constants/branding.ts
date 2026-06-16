@@ -1,3 +1,5 @@
+export const APPSTAX_HOME_URL = 'https://appstax.ai'
+
 export const EDSTACK_PROJECTS_URL = 'https://edstack.appstax.ai'
 
 /** EdStack landing — tools / apps grid (`#tools`). Top-bar logo link. */
