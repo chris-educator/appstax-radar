@@ -1,0 +1,84 @@
+{
+  "id": "/",
+  "name": "AppStax Radar",
+  "short_name": "AppStax Radar",
+  "description": "Curated AI and edtech signals for AppStax builders.",
+  "start_url": "/",
+  "scope": "/",
+  "display": "standalone",
+  "display_override": [
+    "standalone",
+    "minimal-ui",
+    "browser"
+  ],
+  "orientation": "any",
+  "background_color": "#09090b",
+  "theme_color": "#0084ff",
+  "lang": "en-AU",
+  "categories": [
+    "education",
+    "productivity"
+  ],
+  "icons": [
+    {
+      "src": "/favicon.svg",
+      "sizes": "any",
+      "type": "image/svg+xml",
+      "purpose": "any"
+    },
+    {
+      "src": "/icons/icon-48.webp",
+      "sizes": "48x48",
+      "type": "image/webp",
+      "purpose": "any"
+    },
+    {
+      "src": "/icons/icon-72.webp",
+      "sizes": "72x72",
+      "type": "image/webp",
+      "purpose": "any"
+    },
+    {
+      "src": "/icons/icon-96.webp",
+      "sizes": "96x96",
+      "type": "image/webp",
+      "purpose": "any"
+    },
+    {
+      "src": "/icons/icon-128.webp",
+      "sizes": "128x128",
+      "type": "image/webp",
+      "purpose": "any"
+    },
+    {
+      "src": "/icons/icon-192.webp",
+      "sizes": "192x192",
+      "type": "image/webp",
+      "purpose": "any"
+    },
+    {
+      "src": "/icons/icon-256.webp",
+      "sizes": "256x256",
+      "type": "image/webp",
+      "purpose": "any"
+    },
+    {
+      "src": "/icons/icon-512.webp",
+      "sizes": "512x512",
+      "type": "image/webp",
+      "purpose": "any"
+    },
+    {
+      "src": "/icons/icon-192.webp",
+      "sizes": "192x192",
+      "type": "image/webp",
+      "purpose": "maskable"
+    },
+    {
+      "src": "/icons/icon-512.webp",
+      "sizes": "512x512",
+      "type": "image/webp",
+      "purpose": "maskable"
+    }
+  ]
+}

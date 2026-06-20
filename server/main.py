@@ -34,6 +34,15 @@ app = FastAPI(title="AppStax Radar API")
 
 SERVE_FRONTEND = (FRONTEND_DIST / "index.html").is_file()
 
+_NO_CACHE_FILES = frozenset({"sw.js"})
+
+def _pwa_file_response(path: Path) -> FileResponse:
+    headers: dict[str, str] = {}
+    if path.name in _NO_CACHE_FILES:
+        headers["Cache-Control"] = "no-cache"
+    return FileResponse(path, headers=headers)
+
+
 if not SERVE_FRONTEND:
     app.add_middleware(
         CORSMiddleware,
@@ -180,6 +189,10 @@ if SERVE_FRONTEND:
     def spa(full_path: str) -> FileResponse:
         if full_path.startswith("api/"):
             raise HTTPException(status_code=404)
+        candidate = (FRONTEND_DIST / full_path).resolve()
+        dist_root = FRONTEND_DIST.resolve()
+        if full_path and candidate.is_file() and dist_root in candidate.parents:
+            return _pwa_file_response(candidate)
         return FileResponse(FRONTEND_DIST / "index.html")
 else:
 
