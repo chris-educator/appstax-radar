@@ -12,7 +12,7 @@ export function CreditsTopBarLink({ credits, to }: CreditsTopBarLinkProps) {
       className="site-top-bar__action site-top-bar__credits"
       title={`Credits: ${credits}`}
     >
-      cr: {credits}
+      Credits {credits}
     </Link>
   )
 }
