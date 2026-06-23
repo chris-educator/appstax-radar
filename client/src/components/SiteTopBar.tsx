@@ -23,7 +23,7 @@ export function SiteTopBar({
         >
           <EdStackLogo tone="dark" />
         </a>
-        <div className="site-top-bar__actions">{children}</div>
+        <div className="site-top-bar__actions site-top-bar__tools">{children}</div>
       </div>
     </div>
   )
