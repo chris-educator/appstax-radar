@@ -1,8 +1,7 @@
 import { AppTitle } from './AppTitle'
 import { Footer } from './Footer'
 import { SiteTopBar } from './SiteTopBar'
-import { ShareMenu } from './ShareMenu'
-import { EdStackThemeSwitch } from './EdStackThemeSwitch'
+import { SiteTopBarTools } from './SiteTopBarTools'
 import { TopNav } from './TopNav'
 import { APP_TAGLINE } from '../constants/branding'
 
@@ -12,8 +11,7 @@ export function Layout({ children }: LayoutProps) {
   return (
     <div id="top" className="flex min-h-screen min-h-[100dvh] w-full max-w-[100vw] flex-col bg-bg">
       <SiteTopBar>
-        <EdStackThemeSwitch />
-        <ShareMenu />
+        <SiteTopBarTools showAsk={false} />
       </SiteTopBar>
       <header className="ui-header relative z-40 shrink-0 px-4 py-4 sm:px-6 md:px-8">
         <div className="mx-auto max-w-6xl space-y-3">
