@@ -543,3 +543,16 @@ body {
       display: block;
     }
 }
+
+.appstax-bug-report-link {
+  font-size: inherit;
+  font-weight: inherit;
+  color: inherit;
+  text-decoration: none;
+  transition: color 0.15s ease;
+}
+
+.appstax-bug-report-link:hover,
+.appstax-bug-report-link:focus-visible {
+  color: #FF0000;
+}
