@@ -7,6 +7,8 @@ from dataclasses import dataclass
 from datetime import datetime, timezone
 from email.utils import parsedate_to_datetime
 from typing import Any
+from urllib.parse import urlparse
+
 import feedparser
 import httpx
 
@@ -14,9 +16,11 @@ from src.sources import Source
 
 HN_AI_KEYWORDS = re.compile(
     r"\b(ai|llm|gpt|claude|gemini|agent|machine learning|neural|openai|anthropic|"
-    r"transformer|diffusion|cuda|inference|rag|embedding|fine-?tun|model)\b",
+    r"transformer|diffusion|cuda|inference|rag|embedding|fine-?tun|model|deep learning)\b",
     re.I,
 )
+
+IMG_SRC_RE = re.compile(r"""<img[^>]+src=["']([^"']+)["']""", re.I)
 
 
 @dataclass
@@ -26,6 +30,8 @@ class RawItem:
     url: str
     published_at: str | None
     raw_snippet: str
+    image_url: str | None = None
+    engagement_score: float | None = None
 
 
 def _iso(dt: datetime | None) -> str | None:
@@ -62,6 +68,51 @@ def _clean_snippet(text: str, max_len: int = 500) -> str:
     return cleaned
 
 
+def _media_url(value: Any) -> str | None:
+    if not value:
+        return None
+    if isinstance(value, list):
+        for item in value:
+            url = _media_url(item)
+            if url:
+                return url
+        return None
+    if isinstance(value, dict):
+        return (value.get("url") or value.get("href") or "").strip() or None
+    url = getattr(value, "url", None) or getattr(value, "href", None)
+    return str(url).strip() if url else None
+
+
+def _extract_image(entry: dict[str, Any]) -> str | None:
+    for key in ("media_thumbnail", "media_content", "image"):
+        url = _media_url(entry.get(key))
+        if url:
+            return url
+
+    for enc in entry.get("enclosures") or []:
+        enc_type = (enc.get("type") or enc.get("type") or "").lower()
+        href = enc.get("href") or enc.get("url")
+        if href and enc_type.startswith("image/"):
+            return str(href).strip()
+
+    for link in entry.get("links") or []:
+        link_type = (link.get("type") or "").lower()
+        href = link.get("href")
+        if href and link_type.startswith("image/"):
+            return str(href).strip()
+
+    for field in ("summary", "description", "content"):
+        raw = entry.get(field)
+        if isinstance(raw, list) and raw:
+            raw = raw[0].get("value", "")
+        if isinstance(raw, str):
+            match = IMG_SRC_RE.search(raw)
+            if match:
+                return match.group(1).strip()
+
+    return None
+
+
 def fetch_rss(source: Source, *, client: httpx.Client | None = None) -> list[RawItem]:
     if source.type != "rss":
         raise ValueError(f"Source {source.id} is not RSS")
@@ -90,6 +141,8 @@ def fetch_rss(source: Source, *, client: httpx.Client | None = None) -> list[Raw
                 url=link,
                 published_at=_parse_published(entry),
                 raw_snippet=snippet,
+                image_url=_extract_image(entry),
+                engagement_score=None,
             )
         )
     return items
@@ -107,7 +160,7 @@ def fetch_hn_top(*, client: httpx.Client | None = None) -> list[RawItem]:
             "https://hacker-news.firebaseio.com/v0/topstories.json", timeout=20.0
         ).json()
         items: list[RawItem] = []
-        for story_id in top_ids[:80]:
+        for story_id in top_ids[:100]:
             story = client.get(
                 f"https://hacker-news.firebaseio.com/v0/item/{story_id}.json",
                 timeout=15.0,
@@ -123,6 +176,9 @@ def fetch_hn_top(*, client: httpx.Client | None = None) -> list[RawItem]:
                 continue
             ts = story.get("time")
             published = _iso(datetime.fromtimestamp(ts, tz=timezone.utc)) if ts else None
+            score = float(story.get("score") or 0)
+            desc = story.get("descendants") or 0
+            engagement = score + desc * 0.5
             items.append(
                 RawItem(
                     external_id=str(story_id),
@@ -130,9 +186,11 @@ def fetch_hn_top(*, client: httpx.Client | None = None) -> list[RawItem]:
                     url=url,
                     published_at=published,
                     raw_snippet=_clean_snippet(story.get("text") or ""),
+                    image_url=None,
+                    engagement_score=engagement,
                 )
             )
-            if len(items) >= 25:
+            if len(items) >= 30:
                 break
         return items
     finally:
@@ -146,3 +204,14 @@ def fetch_source(source: Source, *, client: httpx.Client | None = None) -> list[
     if source.type == "hn_api":
         return fetch_hn_top(client=client)
     raise ValueError(f"Unknown source type: {source.type}")
+
+
+def favicon_for_url(url: str) -> str:
+    """Google favicon service — fallback thumbnail when RSS has no image."""
+    try:
+        host = urlparse(url).netloc
+        if host:
+            return f"https://www.google.com/s2/favicons?domain={host}&sz=128"
+    except Exception:  # noqa: BLE001
+        pass
+    return ""

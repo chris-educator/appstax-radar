@@ -4,7 +4,7 @@ from __future__ import annotations
 
 import httpx
 
-from src.config import SCOUT_SUMMARIZE_BATCH
+from src.config import AUTO_PUBLISH_THRESHOLD, SCOUT_SUMMARIZE_BATCH
 from src import db
 from src.fetchers import fetch_source
 from src.sources import enabled_sources
@@ -16,6 +16,7 @@ def run_scout(*, summarize: bool = True) -> dict:
     fetched_count = 0
     new_count = 0
     summarized_count = 0
+    auto_published = 0
     errors: list[str] = []
 
     with httpx.Client(
@@ -38,6 +39,8 @@ def run_scout(*, summarize: bool = True) -> dict:
                         raw_snippet=raw.raw_snippet,
                         category=source.category,
                         scout_run_id=run_id,
+                        image_url=raw.image_url,
+                        engagement_score=raw.engagement_score,
                     )
                     if inserted:
                         new_count += 1
@@ -62,6 +65,12 @@ def run_scout(*, summarize: bool = True) -> dict:
                     category=result["category"],
                 )
                 summarized_count += 1
+                if (
+                    AUTO_PUBLISH_THRESHOLD > 0
+                    and result["relevance_score"] >= AUTO_PUBLISH_THRESHOLD
+                ):
+                    db.set_item_status(item["id"], "published")
+                    auto_published += 1
             except Exception as exc:  # noqa: BLE001
                 errors.append(f"summarize:{item['id']}: {exc}")
 
@@ -78,5 +87,6 @@ def run_scout(*, summarize: bool = True) -> dict:
         "fetched_count": fetched_count,
         "new_count": new_count,
         "summarized_count": summarized_count,
+        "auto_published": auto_published,
         "errors": errors,
     }

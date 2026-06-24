@@ -8,9 +8,12 @@ import uuid
 from contextlib import contextmanager
 from datetime import datetime, timezone
 from pathlib import Path
-from typing import Any, Iterator
+from typing import Any, Iterator, Literal
 
 from src import config
+from src.popularity import compute_popularity
+
+SortMode = Literal["popularity", "recent"]
 
 
 def _now() -> str:
@@ -19,6 +22,18 @@ def _now() -> str:
 
 def _db_path(path: Path | None = None) -> Path:
     return path or config.RADAR_DATA_PATH
+
+
+def _migrate(conn: sqlite3.Connection) -> None:
+    cols = {row[1] for row in conn.execute("PRAGMA table_info(items)").fetchall()}
+    migrations: list[tuple[str, str]] = [
+        ("image_url", "ALTER TABLE items ADD COLUMN image_url TEXT DEFAULT ''"),
+        ("engagement_score", "ALTER TABLE items ADD COLUMN engagement_score REAL"),
+        ("popularity_score", "ALTER TABLE items ADD COLUMN popularity_score REAL"),
+    ]
+    for col, sql in migrations:
+        if col not in cols:
+            conn.execute(sql)
 
 
 def init_db(path: Path | None = None) -> None:
@@ -52,14 +67,19 @@ def init_db(path: Path | None = None) -> None:
                 status TEXT NOT NULL DEFAULT 'pending',
                 created_at TEXT NOT NULL,
                 reviewed_at TEXT,
-                scout_run_id TEXT
+                scout_run_id TEXT,
+                image_url TEXT DEFAULT '',
+                engagement_score REAL,
+                popularity_score REAL
             );
 
             CREATE INDEX IF NOT EXISTS idx_items_status ON items(status);
             CREATE INDEX IF NOT EXISTS idx_items_created ON items(created_at DESC);
             CREATE INDEX IF NOT EXISTS idx_items_category ON items(category);
+            CREATE INDEX IF NOT EXISTS idx_items_popularity ON items(popularity_score DESC);
             """
         )
+        _migrate(conn)
 
 
 @contextmanager
@@ -94,17 +114,25 @@ def insert_item(
     raw_snippet: str,
     category: str,
     scout_run_id: str,
+    image_url: str | None = None,
+    engagement_score: float | None = None,
 ) -> str | None:
     if item_exists_by_url(url):
         return None
     item_id = str(uuid.uuid4())
+    popularity = compute_popularity(
+        relevance_score=None,
+        engagement_score=engagement_score,
+        published_at=published_at,
+    )
     with _connect() as conn:
         conn.execute(
             """
             INSERT INTO items (
                 id, source_id, source_name, external_id, title, url,
-                published_at, raw_snippet, category, status, created_at, scout_run_id
-            ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, 'pending', ?, ?)
+                published_at, raw_snippet, category, status, created_at, scout_run_id,
+                image_url, engagement_score, popularity_score
+            ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, 'pending', ?, ?, ?, ?, ?)
             """,
             (
                 item_id,
@@ -118,9 +146,18 @@ def insert_item(
                 category,
                 _now(),
                 scout_run_id,
+                image_url or "",
+                engagement_score,
+                popularity,
             ),
         )
     return item_id
+
+
+def _order_clause(sort: SortMode) -> str:
+    if sort == "recent":
+        return "ORDER BY COALESCE(published_at, created_at) DESC"
+    return "ORDER BY COALESCE(popularity_score, 0) DESC, COALESCE(published_at, created_at) DESC"
 
 
 def list_items(
@@ -129,6 +166,7 @@ def list_items(
     category: str | None = None,
     limit: int = 50,
     offset: int = 0,
+    sort: SortMode = "popularity",
 ) -> list[dict[str, Any]]:
     clauses: list[str] = []
     params: list[Any] = []
@@ -144,7 +182,7 @@ def list_items(
         rows = conn.execute(
             f"""
             SELECT * FROM items {where}
-            ORDER BY COALESCE(published_at, created_at) DESC
+            {_order_clause(sort)}
             LIMIT ? OFFSET ?
             """,
             params,
@@ -174,13 +212,21 @@ def update_item_summary(
     relevance_score: float,
     category: str,
 ) -> None:
+    item = get_item(item_id)
+    if not item:
+        return
+    popularity = compute_popularity(
+        relevance_score=relevance_score,
+        engagement_score=item.get("engagement_score"),
+        published_at=item.get("published_at"),
+    )
     with _connect() as conn:
         conn.execute(
             """
-            UPDATE items SET summary = ?, relevance_score = ?, category = ?
+            UPDATE items SET summary = ?, relevance_score = ?, category = ?, popularity_score = ?
             WHERE id = ?
             """,
-            (summary, relevance_score, category, item_id),
+            (summary, relevance_score, category, popularity, item_id),
         )
 
 

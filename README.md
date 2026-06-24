@@ -6,10 +6,13 @@ Curated AI development, agents, dev tools, and game-tech news for builders.
 
 ## What it does
 
-- **Scout** agent fetches 15 RSS/API sources on demand or via cron
+- **Scout** agent fetches 20 AI-focused RSS/API sources on demand or via cron
 - **Gemini** writes original summaries and relevance scores
-- **Review queue** — founder approves items before they hit the public feed
-- **Feed** — published stories with category filters
+- **Popularity ranking** — HN engagement, relevance, and recency combined
+- **Thumbnails** from RSS feeds (favicon fallback when none)
+- **Auto-publish** — stories scoring ≥ 0.5 relevance go live automatically
+- **Review queue** — admin can still curate edge cases
+- **Feed** — colorful RSS-style rows, Hot / Latest sort, category filters
 
 ## Local dev
 

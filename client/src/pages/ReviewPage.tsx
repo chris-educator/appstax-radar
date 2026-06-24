@@ -55,7 +55,7 @@ export function ReviewPage() {
     try {
       const result = await runScout()
       setScoutMsg(
-        `Scout done — ${result.new_count} new, ${result.summarized_count} summarized, ${result.fetched_count} fetched.`,
+        `Scout done — ${result.new_count} new, ${result.summarized_count} summarized, ${result.auto_published ?? 0} auto-published, ${result.fetched_count} fetched.`,
       )
       await load()
     } catch (e) {

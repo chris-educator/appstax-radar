@@ -4,7 +4,7 @@ Curated AI/dev/gaming news hub. Scout agent + founder review queue.
 
 ## Purpose
 
-Fetch fresh stories from 15 sources, summarize with Gemini, publish after human approval. Link-out model — original summaries only.
+Fetch fresh stories from 20 AI sources, summarize with Gemini, rank by popularity. Link-out model — original summaries only, thumbnails from feeds.
 
 ## Stack
 

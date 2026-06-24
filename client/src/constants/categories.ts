@@ -3,7 +3,6 @@ export const CATEGORIES = [
   { id: 'ai', label: 'AI' },
   { id: 'agents', label: 'Agents' },
   { id: 'devtools', label: 'Dev Tools' },
-  { id: 'gaming', label: 'Gaming' },
   { id: 'research', label: 'Research' },
   { id: 'events', label: 'Events' },
 ] as const

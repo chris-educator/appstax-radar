@@ -18,4 +18,4 @@ RADAR_CRON_SECRET = os.getenv("RADAR_CRON_SECRET", RADAR_ADMIN_SECRET).strip()
 
 SCOUT_SUMMARIZE_BATCH = max(1, min(50, int(os.getenv("SCOUT_SUMMARIZE_BATCH", "20"))))
 
-AUTO_PUBLISH_THRESHOLD = float(os.getenv("AUTO_PUBLISH_THRESHOLD", "0"))  # 0 = manual only
+AUTO_PUBLISH_THRESHOLD = float(os.getenv("AUTO_PUBLISH_THRESHOLD", "0.5"))  # 0 = manual only

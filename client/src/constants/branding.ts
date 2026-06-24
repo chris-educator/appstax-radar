@@ -10,7 +10,7 @@ export const APP_TITLE_MUTED = 'AppStax '
 export const APP_TITLE_ACCENT = 'Radar'
 
 export const APP_TAGLINE =
-  'Curated AI development, agents, dev tools, and game-tech news — Scout finds it, you approve what ships.'
+  'Your one-stop AI news radar — headlines from 20+ sources, ranked by what builders are talking about. Click through for the full story.'
 
 export const APPSTAX_SUPPORT_EMAIL = 'apps@appstax.ai'
 export const APP_BUG_REPORT_NAME = 'AppStax Radar'
@@ -38,6 +38,6 @@ export function appstaxCopyrightLine(year = new Date().getFullYear()) {
 
 /** Canonical one-liner — appstax-website/docs/privacy-marketing-blurbs.md § AppStax Radar */
 export const APP_PRIVACY_BLURB =
-  'Summaries are original AppStax text with links to sources. No public accounts — review queue is key-protected. Google Gemini.'
+  'Headlines link to original publishers. Summaries are original AppStax text — we never republish full articles. Thumbnails from source feeds where available.'
 
 export const ADMIN_KEY_STORAGE = 'appstax-radar-admin-key'

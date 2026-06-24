@@ -3,9 +3,9 @@
 from src.sources import SOURCES, enabled_sources
 
 
-def test_fifteen_sources():
-    assert len(SOURCES) == 15
-    assert len(enabled_sources()) == 15
+def test_twenty_sources():
+    assert len(SOURCES) == 20
+    assert len(enabled_sources()) == 20
 
 
 def test_source_ids_unique():

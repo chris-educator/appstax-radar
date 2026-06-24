@@ -27,8 +27,9 @@ from src.config import (  # noqa: E402
     RADAR_CRON_SECRET,
     RADAR_DATA_PATH,
 )
-from src.scout import run_scout  # noqa: E402
 from src.summarize import gemini_configured  # noqa: E402
+from src.scout import run_scout  # noqa: E402
+from src.sources import enabled_sources  # noqa: E402
 
 app = FastAPI(title="AppStax Radar API")
 
@@ -93,15 +94,19 @@ def health() -> dict:
 def list_items(
     status: str | None = Query(default="published", pattern="^(pending|published|rejected)$"),
     category: str | None = Query(default=None),
+    sort: str = Query(default="popularity", pattern="^(popularity|recent)$"),
     limit: int = Query(default=30, ge=1, le=100),
     offset: int = Query(default=0, ge=0),
 ) -> dict:
-    items = db.list_items(status=status, category=category, limit=limit, offset=offset)
+    items = db.list_items(
+        status=status, category=category, limit=limit, offset=offset, sort=sort  # type: ignore[arg-type]
+    )
     return {
         "items": items,
         "total": db.count_items(status=status),
         "limit": limit,
         "offset": offset,
+        "sort": sort,
     }
 
 
@@ -173,10 +178,20 @@ def categories() -> dict:
             {"id": "ai", "label": "AI"},
             {"id": "agents", "label": "Agents"},
             {"id": "devtools", "label": "Dev Tools"},
-            {"id": "gaming", "label": "Gaming"},
             {"id": "research", "label": "Research"},
             {"id": "events", "label": "Events"},
         ]
+    }
+
+
+@app.get("/api/feed/meta")
+def feed_meta() -> dict:
+    last = db.last_scout_run()
+    return {
+        "source_count": len(enabled_sources()),
+        "published_count": db.count_items(status="published"),
+        "pending_count": db.count_items(status="pending"),
+        "last_scout": last,
     }
 
 

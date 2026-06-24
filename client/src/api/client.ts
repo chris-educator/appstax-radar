@@ -11,9 +11,25 @@ export type RadarItem = {
   summary: string
   category: string
   relevance_score: number | null
+  popularity_score: number | null
+  engagement_score: number | null
+  image_url: string | null
   status: 'pending' | 'published' | 'rejected'
   created_at: string
 }
+
+export type FeedMeta = {
+  source_count: number
+  published_count: number
+  pending_count: number
+  last_scout: {
+    started_at: string
+    finished_at: string | null
+    new_count: number
+  } | null
+}
+
+export type SortMode = 'popularity' | 'recent'
 
 export function getAdminKey(): string {
   try {
@@ -45,17 +61,25 @@ export async function fetchHealth() {
 export async function fetchItems(params: {
   status?: string
   category?: string
+  sort?: SortMode
   limit?: number
   offset?: number
 }) {
   const q = new URLSearchParams()
   if (params.status) q.set('status', params.status)
   if (params.category) q.set('category', params.category)
+  if (params.sort) q.set('sort', params.sort)
   if (params.limit) q.set('limit', String(params.limit))
   if (params.offset) q.set('offset', String(params.offset))
   const res = await fetch(`/api/items?${q}`)
   if (!res.ok) throw new Error('Failed to load items')
-  return res.json() as Promise<{ items: RadarItem[]; total: number }>
+  return res.json() as Promise<{ items: RadarItem[]; total: number; sort: SortMode }>
+}
+
+export async function fetchFeedMeta() {
+  const res = await fetch('/api/feed/meta')
+  if (!res.ok) throw new Error('Failed to load feed meta')
+  return res.json() as Promise<FeedMeta>
 }
 
 export async function approveItem(id: string) {
@@ -93,4 +117,15 @@ export async function fetchScoutStatus() {
   const res = await fetch('/api/scout/status')
   if (!res.ok) throw new Error('Scout status failed')
   return res.json()
+}
+
+export function thumbnailForItem(item: RadarItem): string | null {
+  if (item.image_url) return item.image_url
+  try {
+    const host = new URL(item.url).hostname
+    if (host) return `https://www.google.com/s2/favicons?domain=${host}&sz=128`
+  } catch {
+    /* ignore */
+  }
+  return null
 }
