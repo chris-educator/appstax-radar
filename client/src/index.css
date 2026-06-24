@@ -91,7 +91,7 @@ body {
     display: contents;
   }
 
-  /* Desktop — AIOS action order: Ask · Credits · Sign · Theme · Share */
+  /* Desktop — action order: Ask · Credits · Sign · Share · Theme */
   .site-top-bar__ask {
     order: 1;
   }
@@ -105,12 +105,22 @@ body {
     order: 3;
   }
 
-  .site-top-bar__theme {
+  .site-top-bar__share {
     order: 4;
   }
 
-  .site-top-bar__share {
+  .site-top-bar__theme {
     order: 5;
+  }
+
+  /* Uniform height for top-bar pills — theme switch excluded */
+  .site-top-bar .site-top-bar__action,
+  .site-top-bar .site-top-bar__ask-btn,
+  .site-top-bar .share-menu__trigger {
+    box-sizing: border-box;
+    height: var(--site-top-bar-control-height);
+    min-height: var(--site-top-bar-control-height);
+    max-height: var(--site-top-bar-control-height);
   }
 
   .site-top-bar__action {
@@ -203,6 +213,10 @@ body {
   .site-top-bar .edstack-theme-switch {
     display: inline-flex;
     align-items: center;
+    align-self: center;
+    height: auto;
+    min-height: 0;
+    max-height: none;
     padding: 0;
     border: none;
     background: transparent;
@@ -293,17 +307,19 @@ body {
       width: 100%;
     }
 
-    .site-top-bar__group-secondary {
-      display: grid;
+    .site-top-bar__inner:has(.site-top-bar__group-secondary) .site-top-bar__group-primary {
       grid-column: 1 / -1;
       grid-row: 2;
-      grid-template-columns: minmax(0, 1fr) auto;
-      gap: 0;
-      width: 100%;
     }
 
-    .site-top-bar__group-secondary:not(:has(.site-top-bar__ask)) {
+    .site-top-bar__group-secondary {
+      display: grid;
+      grid-column: 2;
+      grid-row: 1;
       grid-template-columns: minmax(0, 1fr);
+      gap: 0;
+      min-width: 0;
+      width: 100%;
     }
 
     .site-top-bar__group-primary > *,
@@ -327,18 +343,24 @@ body {
     }
 
     .site-top-bar__group-primary > .site-top-bar__theme:last-child,
-    .site-top-bar__group-primary > .site-top-bar__action:last-child,
-    .site-top-bar__group-primary > .site-top-bar__share:last-child .share-menu__trigger {
+    .site-top-bar__group-primary > .site-top-bar__action:last-child {
       border-top-right-radius: 0.5rem;
       border-bottom-right-radius: 0.5rem;
     }
 
-    .site-top-bar__group-primary > .site-top-bar__theme {
+        /* When an action precedes Share in the mobile primary row, keep its right side square so Share can attach cleanly */
+    .site-top-bar__group-primary > .site-top-bar__action:has(+ .site-top-bar__share) {
+      border-top-right-radius: 0;
+      border-bottom-right-radius: 0;
+    }
+.site-top-bar__group-primary > .site-top-bar__theme {
       display: flex;
       align-items: center;
+      align-self: center; /* do not stretch theme wrapper to full button row height */
       justify-content: center;
       width: 100%;
       min-width: 0;
+      height: auto;
     }
 
     .site-top-bar__group-primary > .skin-picker {
@@ -366,29 +388,47 @@ body {
     }
 
     .site-top-bar__group-secondary > .site-top-bar__ask > button {
+      box-sizing: border-box;
       width: 100%;
       justify-content: center;
       height: var(--site-top-bar-control-height);
       min-height: var(--site-top-bar-control-height);
+      max-height: var(--site-top-bar-control-height);
       font-size: 0.75rem;
-      border-top-right-radius: 0;
-      border-bottom-right-radius: 0;
+      border-radius: 0.5rem;
     }
 
-    .site-top-bar__group-secondary > .site-top-bar__share .share-menu__trigger,
-    .site-top-bar__group-secondary > .site-top-bar__share:last-child .share-menu__trigger {
-      width: var(--site-top-bar-control-height);
+        /* Share when placed in secondary (e.g. clock-stopwatch manual layout) gets locked height + full pill on mobile */
+    .site-top-bar__group-secondary > .site-top-bar__share {
+      width: auto; /* don\'t let the 1fr cell stretch the wrapper */
+    }
+    .site-top-bar__group-secondary > .site-top-bar__share .share-menu__trigger {
+      box-sizing: border-box;
       height: var(--site-top-bar-control-height);
       min-height: var(--site-top-bar-control-height);
-      border-top-left-radius: 0;
-      border-bottom-left-radius: 0;
+      max-height: var(--site-top-bar-control-height);
+      width: var(--site-top-bar-control-height);
+      border-radius: 0.5rem;
     }
 
-    .site-top-bar__group-secondary:not(:has(.site-top-bar__ask))
-      > .site-top-bar__share
-      .share-menu__trigger {
+.site-top-bar__group-primary > .site-top-bar__share .share-menu__trigger {
+      box-sizing: border-box;
       width: 100%;
+      height: var(--site-top-bar-control-height);
+      min-height: var(--site-top-bar-control-height);
+      max-height: var(--site-top-bar-control-height);
+      /* sides square by default to join adjacent pills; end caps set below */
+      border-radius: 0;
+    }
+
+    /* Share gets proper end rounding on mobile when first (standalone) or as the last pill before theme */
+    .site-top-bar__group-primary > .site-top-bar__share:first-child .share-menu__trigger {
       border-radius: 0.5rem;
+    }
+    .site-top-bar__group-primary > .site-top-bar__share:not(:first-child) .share-menu__trigger {
+      border-top-right-radius: 0.5rem;
+      border-bottom-right-radius: 0.5rem;
+      /* left sides stay 0 to butt against preceding pill */
     }
 
     .site-top-bar__ask,

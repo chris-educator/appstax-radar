@@ -16,16 +16,15 @@ type SiteTopBarToolsProps = {
   loginTo?: string
   onLogout?: () => void
   shareTriggerAriaLabel?: string
-  /** Rendered in row 1 before credits / sign-in (e.g. skin picker). */
+  /** Rendered before credits / sign-in (e.g. skin picker). */
   primaryBeforeTheme?: ReactNode
-  /** Rendered in row 2 before Ask. */
+  /** Rendered before Ask. */
   secondaryBeforeAsk?: ReactNode
 }
 
 /**
- * Standard EdStack top-bar controls — AIOS order on desktop; two-row mobile grid.
- * Row 1 (beside logo): credits · sign in/out · theme (+ share when no Ask row).
- * Row 2 (full width): ask · share.
+ * Standard EdStack top-bar controls — Ask · Credits · Sign · Share · Theme.
+ * Desktop: flex order via CSS. Mobile: Ask beside logo (row 1), other controls full width (row 2).
  */
 export function SiteTopBarTools({
   showAsk = true,
@@ -41,10 +40,16 @@ export function SiteTopBarTools({
   secondaryBeforeAsk,
 }: SiteTopBarToolsProps) {
   const askControl = showAsk ? askSlot : null
-  const secondaryRow = askControl || secondaryBeforeAsk
+  const hasAskRow = askControl || secondaryBeforeAsk
 
   return (
     <>
+      {hasAskRow ? (
+        <div className="site-top-bar__group-secondary">
+          {secondaryBeforeAsk}
+          {askControl}
+        </div>
+      ) : null}
       <div className="site-top-bar__group-primary">
         {primaryBeforeTheme}
         {showBilling && signedIn ? (
@@ -54,16 +59,9 @@ export function SiteTopBarTools({
         {showBilling && signedIn && onLogout ? (
           <SignOutButton onClick={onLogout} />
         ) : null}
+        <ShareMenu triggerAriaLabel={shareTriggerAriaLabel} />
         <EdStackThemeSwitch />
-        {!secondaryRow ? <ShareMenu triggerAriaLabel={shareTriggerAriaLabel} /> : null}
       </div>
-      {secondaryRow ? (
-        <div className="site-top-bar__group-secondary">
-          {secondaryBeforeAsk}
-          {askControl}
-          <ShareMenu triggerAriaLabel={shareTriggerAriaLabel} />
-        </div>
-      ) : null}
     </>
   )
 }
